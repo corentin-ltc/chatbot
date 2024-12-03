@@ -1,7 +1,9 @@
+// Store chat histories for each bot
+const chatHistories = {};
+
 document.getElementById("create-bot-btn").addEventListener("click", async () => {
     const botName = document.getElementById("bot-name").value;
     const customPrompt = document.getElementById("custom-prompt").value;
-    const responseDiv = document.getElementById("response");
 
     if (!botName || !customPrompt) {
         alert("Please provide both a name and a prompt.");
@@ -22,6 +24,8 @@ document.getElementById("create-bot-btn").addEventListener("click", async () => 
             loadBots();
             document.getElementById("bot-name").value = "";
             document.getElementById("custom-prompt").value = "";
+            // Initialize chat history for new bot
+            chatHistories[botName] = [];
         } else if (data.error) {
             alert(`Error: ${data.error}`);
         }
@@ -31,14 +35,25 @@ document.getElementById("create-bot-btn").addEventListener("click", async () => 
 });
 
 // Function to add a message to the chat history
-function addMessageToChat(message, isUser = false) {
+function addMessageToChat(message, isUser = false, botName) {
     const chatHistory = document.getElementById("chat-history");
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
     
     const messageContent = document.createElement("div");
     messageContent.className = "message-content";
-    messageContent.textContent = message;
+    
+    // Add bot name tag for bot messages
+    if (!isUser) {
+        const botTag = document.createElement("div");
+        botTag.className = "bot-tag";
+        botTag.textContent = botName;
+        messageContent.appendChild(botTag);
+    }
+    
+    const textContent = document.createElement("div");
+    textContent.textContent = message;
+    messageContent.appendChild(textContent);
     
     const messageTime = document.createElement("div");
     messageTime.className = "message-time";
@@ -47,6 +62,16 @@ function addMessageToChat(message, isUser = false) {
     messageDiv.appendChild(messageContent);
     messageDiv.appendChild(messageTime);
     chatHistory.appendChild(messageDiv);
+    
+    // Store message in chat history
+    if (!chatHistories[botName]) {
+        chatHistories[botName] = [];
+    }
+    chatHistories[botName].push({
+        message,
+        isUser,
+        time: new Date().toLocaleTimeString()
+    });
     
     // Scroll to the bottom
     chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -63,7 +88,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
     }
 
     // Add user message to chat
-    addMessageToChat(userInput, true);
+    addMessageToChat(userInput, true, selectedBot);
     
     // Clear input
     document.getElementById("question-input").value = "";
@@ -79,7 +104,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
         if (data.response) {
             // Add bot response to chat
-            addMessageToChat(data.response, false);
+            addMessageToChat(data.response, false, selectedBot);
         } else if (data.error) {
             alert(`Error: ${data.error}`);
         }
@@ -100,7 +125,7 @@ async function loadBots() {
 
             // Clear previous list
             botList.innerHTML = "";
-            selectBot.innerHTML = '<option value="" disabled selected>Select a chatbot</option>';
+            selectBot.innerHTML = '<option value="" disabled selected>Sélectionne un chatbot</option>';
 
             // Populate bot list
             data.bots.forEach(bot => {
@@ -118,6 +143,22 @@ async function loadBots() {
         alert(`Connection Error: ${error.message}`);
     }
 }
+
+// Handle bot selection change
+document.getElementById("select-chatbot").addEventListener("change", (e) => {
+    const selectedBot = e.target.value;
+    const chatHistory = document.getElementById("chat-history");
+    
+    // Clear current chat display
+    chatHistory.innerHTML = "";
+    
+    // Load selected bot's chat history
+    if (chatHistories[selectedBot]) {
+        chatHistories[selectedBot].forEach(msg => {
+            addMessageToChat(msg.message, msg.isUser, selectedBot);
+        });
+    }
+});
 
 // Add enter key support for sending messages
 document.getElementById("question-input").addEventListener("keypress", (e) => {
