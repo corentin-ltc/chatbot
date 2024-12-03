@@ -3,17 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decision Maker</title>
+    <title>Custom Chatbot Creator</title>
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Decision Maker</h1>
-        <p>Posez une question et laissez l'IA décider pour vous.</p>
-        <textarea id="question-input" placeholder="Entrez votre question ici..."></textarea>
-        <button id="submit-btn">Décidez pour moi</button>
-        <div id="response"></div>
+        <header>
+            <h1>Créer et gère tes propres bots</h1>
+        </header>
+
+        <!-- Create chatbot section -->
+        <section class="create-chatbot">
+            <h2>Créer un nouveau bot</h2>
+            <div class="form-group">
+                <label for="bot-name">Nom du Bot:</label>
+                <input type="text" id="bot-name" placeholder="Donne un nom à ton bot">
+            </div>
+            <div class="form-group">
+                <label for="custom-prompt">Description du bot:</label>
+                <textarea id="custom-prompt" placeholder="Décris ton bot avec le plus de précision possible, ex:(Conseiller assurance habitation, Avocat en droit du travail, prof d'anglais etc.. )"></textarea>
+            </div>
+            <button id="create-bot-btn">Créer son chatbot</button>
+        </section>
+
+        <!-- List of user's chatbots -->
+        <section class="bot-list">
+            <h2>Tes bots:</h2>
+            <ul id="bots"></ul>
+        </section>
+
+        <!-- Chat section -->
+        <section class="chat-section">
+            <h2>Discute avec ton bot</h2>
+            <div class="form-group">
+                <label for="select-chatbot">Bot sélectionné:</label>
+                <select id="select-chatbot">
+                    <option value="" disabled selected>Sélectionne un chatbot ici</option>
+                </select>
+            </div>
+            <div class="chat-container" id="chat-history"></div>
+            <div class="chat-input-container">
+                <textarea id="question-input" placeholder="Écris ton message ici..."></textarea>
+                <button id="submit-btn">Envoyer</button>
+            </div>
+        </section>
     </div>
+
     <script src="static/app.js"></script>
 </body>
 </html>
